@@ -1,6 +1,6 @@
 ---
 name: tcms-writer
-version: "1.1.0"
+version: "1.2.0"
 description: |
   For tech-product marketing teams — turns a product knowledge base into brand-side long-form drafts (blogs, case studies, product write-ups), not third-party analysis.
   Produces only 1500-3000 word long-form drafts from a content brief; does not handle social posts, short content, or channel adaptation.
@@ -31,174 +31,180 @@ allowed-tools:
 disable: false
 ---
 
-# TCMS Writer
+# Content Writer
 
-基于产品知识库、品牌规范和选题Brief，产出高质量的长文初稿。
+Produces high-quality long-form first drafts from a product knowledge base, brand guidelines, and a content brief.
 
-## 工作模式：提示链（Prompt Chaining）
+## Operating mode: prompt chaining
 
-按固定步骤执行，每一步输入输出明确。
-
----
-
-## Step 1: 确认选题 [确定性]
-
-读取用户提供的选题信息，确认以下要素：
-
-| 要素 | 必须明确 | 缺失时处理 |
-|------|---------|-----------|
-| 文章类型 | 技术博客 / 客户案例 / 产品解读 | 询问用户 |
-| 目标产品 | 具体产品名 | 询问用户 |
-| 目标读者 | 架构师/CTO/工程师/分析师 | 默认"技术决策者" |
-| 核心信息 | 要传达的关键价值点 | 从知识库提取 |
-| 素材来源 | 知识库/内部材料/已发文章 | 默认使用知识库 |
-| 保密要求 | 是否有内部案例需脱敏 | 默认全部脱敏 |
-
-如果用户提供了Brief文件路径，直接读取Brief。
+Executes in fixed steps; each step has clear inputs and outputs.
 
 ---
 
-## Step 2: 读取素材 [确定性]
+## Step 1: Confirm the topic [deterministic]
 
-**只读与目标产品相关的文件，不加载无关产品信息：**
+Read the topic information provided by the user and confirm the following elements:
 
-1. **产品知识库** → 搜索目标产品对应章节（不读全文，用search_content定位）
-2. **品牌规范** → `references/brand-rules.md`（每次都读）
-3. **文章模板** → 按文章类型读取对应模板：
-   - 技术博客：`references/templates/tech-blog.md`
-   - 客户案例：`references/templates/case-study.md`
-   - 产品解读：`references/templates/product-update.md`
-4. **补充素材**（按需）：Brief中指定的内部文档或已发布文章
+| Element | Must be clear | If missing |
+|---------|---------------|------------|
+| Article type | tech blog / customer case / product update | ask the user |
+| Target product | specific product name | ask the user |
+| Target reader | architect / CTO / engineer / analyst | default "technical decision-maker" |
+| Core message | the key value point to convey | extract from knowledge base |
+| Source material | knowledge base / internal material / published article | default knowledge base |
+| Confidentiality | whether internal cases need redaction | default full redaction |
 
-> 以上路径需根据实际项目目录配置。
-
----
-
-## Step 3: 写作 [LLM]
-
-### 写作规则
-
-**产品名称**：
-- 首次提及使用官网全称（参见brand-rules.md产品名称对照表）
-- 后续可用简称
-
-**品牌露出**：
-- 标题中包含品牌名或具体产品官方名称
-- 开头两段内引入品牌或具体产品
-- 结尾有固定品牌格式
-
-**数据引用**：
-- 所有数据必须来自知识库或已发布文章，不可编造
-- 引用时记录来源（用于Step 5生成引用表）
-
-**客户信息**：
-- 内部来源的客户案例**默认脱敏**
-- 脱敏格式："某+行业+企业规模"
-- 不出现客户公司名、内部人员姓名、项目代号
-- 用户明确告知已授权的可使用客户名称
-
-**竞品处理**：
-- 不直接点名任何竞品
-- 使用"某友商平台"等替代表述
-
-**产品能力来源验证**：
-- 只引用知识库中存在的产品能力
-- 不确定是否已公开的，在预审清单中标注"需确认"
-
-### 表达红线（技术产品营销文写作纪律，多轮改稿与三件套治理线收敛，不可违反）
-
-1. **禁用元语言 / 自我指涉**。凡"本文…""新闻稿把…讲清楚了""值得单独展开""回到…整体叙事""已发布的稿件中提到""下文将…"等跳出文章谈框架的句式一律删除，用内容事实直接过渡。
-2. **禁用商务腔四字总结**。"多、快、好、省"等四字口号在技术博客里必须改写为工程维度：负载覆盖 / 执行效率 / 运维体验 / 资源效率。
-3. **禁止绝对化表述**。"天然打通""无缝""必然""一定""零"等绝对化词，改用带边界的定性（如"权限与血缘随表对象统一继承，减少跨引擎的二次授权与割裂"）。
-4. **命名一致性（P0）**。产品对外名以同 campaign / 发布项目已发布权威物料（新闻稿/官网/公众号）为准，技术博客不得自行加版本号或后缀（如对外统一叫 X，博客不得写"X 2.0"）；同一 campaign 内命名必须逐字一致。
-5. **忠实转录 vs 量化断言**。基础设施能力（如特定网络/存储技术）有架构图或已发布物料背书可如实写；但量化加速倍数（如"X 加速 N 倍"）无官方口径不得写，改定性表述。
-
-### 文章结构
-
-不写成：功能1 → 功能2 → 功能3 的产品说明书
-
-要写成：**问题 → 为什么难 → 方案（自然引入产品能力）→ 效果 → 适用判断**
-
-每篇文章要有明确的读者收获——读完能做出一个判断或学到一个方法。
-
-### 字数
-
-目标 1500-3000字。超过3500字需压缩，低于1200字需补充。
+If the user provides a brief file path, read the brief directly.
 
 ---
 
-## Step 4: 自检 [LLM]
+## Step 2: Read source material [deterministic]
 
-| 检查项 | 通过标准 | 不通过处理 |
-|--------|---------|-----------|
-| 客户名称泄露 | 内部来源案例无客户名 | 立即替换为脱敏版 |
-| 竞品点名 | 无竞品公司名 | 替换 |
-| 产品名规范 | 首次提及用官网全称 | 修正 |
-| 品牌露出 | 标题/开头/结尾均有 | 补充 |
-| 数据有出处 | 每个数字都能指向知识库条目 | 删除无出处数据 |
-| 内部代号 | 无未公开的产品代号/功能名 | 删除 |
-| 字数范围 | 1500-3000字 | 调整 |
+**Read only files related to the target product; do not load unrelated product information:**
+
+1. **Product knowledge base** → search the target product's section (don't read in full; use `search_content` to locate)
+2. **Brand guidelines** → `references/brand-rules.md` (read every time)
+3. **Article templates** → read the template matching the article type:
+   - tech blog: `references/templates/tech-blog.md`
+   - customer case: `references/templates/case-study.md`
+   - product update: `references/templates/product-update.md`
+4. **Supplementary material** (as needed): internal docs or published articles specified in the brief
+
+> The paths above must be configured per the actual project directory.
 
 ---
 
-## Step 5: 输出 [确定性]
+## Step 3: Writing [LLM]
 
-产出两个文件：
+### Writing rules
 
-**文件1：文章初稿**
-保存路径：`content/drafts/YYYY-MM-{产品}-{主题简称}.md`
+**Product names:**
+- First mention uses the official full name (see the product-name mapping table in `brand-rules.md`)
+- Subsequent mentions may use the short name
 
-**文件2：引用追溯表 + 预审清单**
-保存路径：同目录，文件名加 `-review` 后缀
+**Brand presence:**
+- Title includes the brand name or the specific product's official name
+- Introduce the brand or specific product within the first two paragraphs
+- Fixed brand format at the end
+
+**Data citations:**
+- All data must come from the knowledge base or published articles; never fabricate
+- Record the source when citing (used to build the citation table in Step 5)
+
+**Customer information:**
+- Customer cases from internal sources are **redacted by default**
+- Redaction format: "a {industry} {company-scale} company"
+- Never show the customer's company name, internal staff names, or project code names
+- Use the real customer name only when the user has explicitly confirmed authorization
+
+**Competitor handling:**
+- Never name any competitor directly
+- Use substitute phrasing such as "a peer platform"
+
+**Product-capability source verification:**
+- Cite only capabilities that exist in the knowledge base
+- If unsure whether something is publicly released, mark it "needs confirmation" in the pre-review checklist
+
+### Expression red lines (writing discipline for tech-product marketing copy; converged from multiple revision rounds and the three-piece governance line — must not be violated)
+
+1. **No meta-language / self-reference.** Delete any sentence that steps outside the article to talk about its own structure — e.g. "this article…", "the press release makes it clear that…", "deserves its own section", "back to the overall narrative", "as mentioned in the published draft", "the next section will…". Transition with the content facts directly.
+2. **No business-jargon four-character slogans.** Slogans like "多、快、好、省" (many/fast/good/cheap) must be rewritten in engineering dimensions: load coverage / execution efficiency / operations experience / resource efficiency.
+3. **No absolutist phrasing.** Words like "naturally connected", "seamless", "inevitable", "certain", "zero" must be replaced with bounded qualifiers (e.g. "permissions and lineage inherit uniformly with the table object, reducing cross-engine re-authorization and fragmentation").
+4. **Naming consistency (P0).** A product's external name must match the already-published authoritative materials of the same campaign (press release / official site / official account) verbatim; the tech blog must not add its own version number or suffix (e.g. if the external name is uniformly "X", the blog must not write "X 2.0"); naming within the same campaign must be byte-for-byte consistent.
+5. **Faithful transcription vs quantified claims.** Infrastructure capabilities (e.g. a specific networking/storage technique) may be stated as-is if backed by an architecture diagram or published material; but quantified speedup multiples (e.g. "X accelerates N times") must not be written without an official figure — use qualitative phrasing instead.
+
+### Article structure
+
+Do not write: feature 1 → feature 2 → feature 3 (a product spec sheet).
+
+Do write: **problem → why it's hard → solution (naturally introducing product capability) → effect → applicability judgment**.
+
+Every article must leave the reader with a clear takeaway — a judgment they can make, or a method they can learn.
+
+### Word count
+
+Target 1500-3000 words. Compress if over 3500; supplement if under 1200.
+
+---
+
+## Step 4: Self-check [LLM]
+
+| Check | Pass criterion | If fail |
+|-------|----------------|---------|
+| Customer-name leak | no customer name in internally-sourced cases | immediately replace with redacted version |
+| Competitor naming | no competitor company name | replace |
+| Product-name规范 | first mention uses official full name | fix |
+| Brand presence | present in title / opening / closing | supplement |
+| Data has source | every number points to a knowledge-base entry | delete unsourced data |
+| Internal code name | no undisclosed product code name / feature name | delete |
+| Word-count range | 1500-3000 words | adjust |
+
+---
+
+## Step 5: Output [deterministic]
+
+Produce two files:
+
+**File 1: article first draft**
+Path: `content/drafts/YYYY-MM-{product}-{topic-short}.md`
+
+**File 2: citation-traceability table + pre-review checklist**
+Path: same directory, filename with `-review` suffix
 
 ```markdown
-## 执行摘要
-- 读取素材：[列出实际读取的文件]
-- 模板选择：[文章类型]
-- 文章字数：[实际字数]
-- 引用数据点：[N]个（[M]个公开，[K]个内部脱敏）
-- 自检结果：7项检查，[X]通过[Y]修正
+## Execution summary
+- Source material read: [list actual files read]
+- Template chosen: [article type]
+- Article word count: [actual]
+- Cited data points: [N] ( [M] public, [K] internal redacted)
+- Self-check: 7 checks, [X] passed [Y] fixed
 
-## 引用追溯
+## Citation traceability
 
-| 文中数据点 | 知识库条目/来源 | 公开状态 |
-|-----------|----------------|---------|
-| "xxx" | xxx条目 / 来源文章 | ✅公开 / 📋内部(已脱敏) |
+| Data point in text | Knowledge-base entry / source | Public status |
+|--------------------|------------------------------|---------------|
+| "xxx" | xxx entry / source article | ✅ public / 📋 internal (redacted) |
 
-## 预审清单
+## Pre-review checklist
 
-- [ ] 客户名称脱敏检查
-- [ ] 产品能力公开状态
-- [ ] PM需确认的数据点
+- [ ] Customer-name redaction check
+- [ ] Product-capability public-status check
+- [ ] Data points PM needs to confirm
 ```
 
 ---
 
-## 硬性规则
+## Hard rules
 
-1. **不编造数据。** 没有出处的数字不写。
-2. **内部案例默认脱敏。** 除非用户明确告知已授权。
-3. **不点名竞品。**
-4. **产品名以官网为准。**
-5. **不引用知识库中没有的产品能力。** 不确定的标注"需确认"。
-6. **每篇文章必须附引用追溯表。**
-7. **未确认对外口径的产品不推广。**
-8. **表达红线不可违反**（详见 Step 3「表达红线」小节）：禁用元语言/自我指涉、禁用商务腔四字总结、禁止绝对化表述、命名一致性（P0，对外名以同 campaign 已发布物料为准不加版本号后缀）、忠实转录 vs 量化断言。写稿即须遵守，发布前审计发现的同类问题即视为本 Skill 漏防。
-
----
-
-## 失败处理
-
-| 场景 | 处理 |
-|------|------|
-| 知识库中找不到目标产品信息 | 停止生成，报告"知识库中无{产品}的信息" |
-| Brief中要求的文章类型没有对应模板 | 使用tech-blog模板作为默认 |
-| 引用数据标注为"已过期" | 不引用，预审清单中标注 |
-| 客户授权状态不明 | 默认脱敏 |
-| 文章超过3500字 | 给出压缩建议 |
+1. **Never fabricate data.** Don't write numbers without a source.
+2. **Internal cases are redacted by default.** Unless the user has explicitly confirmed authorization.
+3. **Never name competitors.**
+4. **Product names follow the official site.**
+5. **Don't cite product capabilities not in the knowledge base.** Mark uncertain ones "needs confirmation".
+6. **Every article must attach a citation-traceability table.**
+7. **Don't promote products whose external messaging is unconfirmed.**
+8. **Expression red lines are non-negotiable** (see the "Expression red lines" subsection in Step 3): no meta-language/self-reference, no business-jargon four-character slogans, no absolutist phrasing, naming consistency (P0 — external name follows the same-campaign published materials, no version-number suffix), faithful transcription vs quantified claims. Must be followed while writing; issues of the same kind found in pre-publication audit count as a miss by this Skill.
 
 ---
 
-## ⚠️ 人工介入
+## Failure handling
 
-输出完成后，文章进入**人工review环节**。本Skill不自动发布，所有初稿必须经人工确认后才能进入content-adapter进行渠道适配。
+| Scenario | Handling |
+|----------|----------|
+| Target product not found in knowledge base | stop generation, report "no information on {product} in knowledge base" |
+| Brief requests an article type with no template | use tech-blog template as default |
+| Cited data marked "expired" | don't cite; flag in pre-review checklist |
+| Customer authorization status unclear | default redaction |
+| Article over 3500 words | give compression suggestions |
+
+---
+
+## ⚠️ Human-in-the-loop
+
+After output, the article enters **human review**. This Skill does not auto-publish; every first draft must be confirmed by a human before entering `content-adapter` for channel adaptation.
+
+---
+
+## 中文摘要
+
+Content Writer 是面向品牌营销的长文创作 Agent：基于产品知识库、品牌规范与选题 Brief，产出 1500–3000 字的技术博客、客户案例或产品解读初稿（不含社交帖与渠道适配）。写作严守五条表达红线（禁用元语言/自我指涉、禁用商务腔四字总结、禁止绝对化表述、P0 命名一致性、忠实转录 vs 量化断言）；内部客户案例默认脱敏、不点名竞品、所有数据须有出处并附引用追溯表。初稿完成后进入人工 review，不自动发布。
