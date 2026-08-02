@@ -1,6 +1,6 @@
 ---
 name: tcms-writer
-version: "1.2.0"
+version: "1.2.1"
 description: |
   For tech-product marketing teams — turns a product knowledge base into brand-side long-form drafts (blogs, case studies, product write-ups), not third-party analysis.
   Produces only 1500-3000 word long-form drafts from a content brief; does not handle social posts, short content, or channel adaptation.
@@ -28,6 +28,17 @@ allowed-tools:
   - search_content
   - search_file
   - list_dir
+metadata:
+  openclaw:
+    tags:
+      - content-marketing
+      - tech-product
+      - writing
+      - copywriting
+      - b2b
+      - brand-marketing
+      - tech-blog
+      - long-form
 disable: false
 ---
 
