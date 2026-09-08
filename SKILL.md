@@ -1,10 +1,19 @@
 ---
+slug: tcms-writer
+displayName: Tcms Writer
 name: tcms-writer
-version: "1.2.1"
+version: "1.2.5"
+not_for:
+  - Social posts, short content, or channel adaptation (use an adaptation skill)
+  - Neutral third-party industry research (use a deep-dive pipeline skill)
+  - Publishing or distributing the draft (stops at first draft + review package)
+  - Writing without a content brief or source knowledge base
 description: |
   For tech-product marketing teams — turns a product knowledge base into brand-side long-form drafts (blogs, case studies, product write-ups), not third-party analysis.
   Produces only 1500-3000 word long-form drafts from a content brief; does not handle social posts, short content, or channel adaptation.
   Not for neutral industry research — use industry-deep-dive-pipeline for that.
+description_zh: "技术产品营销写作器：面向技术产品营销团队，将产品知识库转化为品牌侧长文草稿（博客、案例、产品稿），仅产 1500-3000 字长文，不做社媒短文或渠道适配。"
+
 read_when:
   - 写文章
   - 写稿
