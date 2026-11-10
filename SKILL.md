@@ -2,7 +2,7 @@
 slug: tcms-writer
 displayName: Tcms Writer
 name: tcms-writer
-version: "1.3.1"""
+version: "1.3.2"
 not_for:
   - Social posts, short content, or channel adaptation (use an adaptation skill)
   - Neutral third-party industry research (use a deep-dive pipeline skill)
@@ -191,7 +191,7 @@ Path: same directory, filename with `-review` suffix
 - Template chosen: [article type]
 - Article word count: [actual]
 - Cited data points: [N] ( [M] public, [K] internal redacted)
-- Self-check: 10 checks, [X] passed [Y] fixed
+- Self-check: 11 checks, [X] passed [Y] fixed
 
 ## Citation traceability
 
