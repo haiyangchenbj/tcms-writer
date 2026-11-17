@@ -2,7 +2,7 @@
 slug: tcms-writer
 displayName: Tcms Writer
 name: tcms-writer
-version: "1.3.2"
+version: "1.3.3"
 not_for:
   - Social posts, short content, or channel adaptation (use an adaptation skill)
   - Neutral third-party industry research (use a deep-dive pipeline skill)
@@ -231,6 +231,7 @@ Path: same directory, filename with `-review` suffix
 | Cited data marked "expired" | don't cite; flag in pre-review checklist |
 | Customer authorization status unclear | default redaction |
 | Article over 3500 words | give compression suggestions |
+| Core message not derivable from knowledge base | stop and ask the user to supply the key value point; never invent one |
 
 ---
 
